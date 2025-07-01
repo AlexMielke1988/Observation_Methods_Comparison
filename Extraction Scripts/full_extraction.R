@@ -526,7 +526,7 @@ p_density_plot <- ggarrange(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Density Plot.jpg",
+  "Density Plot.jpg",
   p_density_plot,
   dpi = 300,
   width = 10,
@@ -534,7 +534,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Correlation Methods.jpg",
+  "Correlation Methods.jpg",
   correlation_difference,
   dpi = 300,
   width = 10,
@@ -631,7 +631,7 @@ accuracy_scan_plot <- plot_model(
 
 
 ggsave(
-  "Figures/Alex Final Figures/Accuracy Impact.jpg",
+  "Accuracy Impact.jpg",
   grid.arrange(accuracy_focal_plot, accuracy_scan_plot, ncol = 2),
   dpi = 300,
   width = 10,
@@ -683,7 +683,7 @@ accuracy_plot <-
 
 
 ggsave(
-  "Figures/Alex Final Figures/Accuracy Impact2.jpg",
+  "Accuracy Impact2.jpg",
   accuracy_plot,
   dpi = 300,
   width = 10,
@@ -780,7 +780,7 @@ precision_scan_plot <- plot_model(
 # save grid arranged plots
 
 ggsave(
-  "Figures/Alex Final Figures/Precision Impact.jpg",
+  "Precision Impact.jpg",
   grid.arrange(precision_focal_plot, precision_scan_plot, ncol = 2),
   dpi = 300,
   width = 10,
@@ -832,7 +832,7 @@ precision_plot <-
 
 
 ggsave(
-  "Figures/Alex Final Figures/Precision Impact2.jpg",
+  "Precision Impact2.jpg",
   precision_plot,
   dpi = 300,
   width = 10,
@@ -927,7 +927,7 @@ bias_scan_plot <- plot_model(
 # save grid arranged plots
 
 ggsave(
-  "Figures/Alex Final Figures/Bias Impact.jpg",
+  "Bias Impact.jpg",
   grid.arrange(bias_focal_plot, bias_scan_plot, ncol = 2),
   dpi = 300,
   width = 10,
@@ -980,7 +980,7 @@ bias_plot <-
 
 
 ggsave(
-  "Figures/Alex Final Figures/Bias Impact2.jpg",
+  "Bias Impact2.jpg",
   bias_plot,
   dpi = 300,
   width = 10,
@@ -1070,7 +1070,7 @@ correlation_scan_plot <- plot_model(
 
 # save grid arranged plots
 ggsave(
-  "Figures/Alex Final Figures/Correlation Impact.jpg",
+  "Correlation Impact.jpg",
   grid.arrange(correlation_focal_plot, correlation_scan_plot, ncol = 2),
   dpi = 300,
   width = 10,
@@ -1122,7 +1122,7 @@ correlation_plot <-
 
 
 ggsave(
-  "Figures/Alex Final Figures/Correlation Impact2.jpg",
+  "Correlation Impact2.jpg",
   correlation_plot,
   dpi = 300,
   width = 10,
@@ -1215,7 +1215,7 @@ accuracy_comparison_effects <- plot_model(
 
 
 ggsave(
-  "Figures/Alex Final Figures/Accuracy Comparison.jpg",
+  "Accuracy Comparison.jpg",
   accuracy_comparison_effects,
   dpi = 300,
   width = 10,
@@ -1302,7 +1302,7 @@ precision_comparison_effects <- plot_model(
 
 
 ggsave(
-  "Figures/Alex Final Figures/Precision Comparison.jpg",
+  "Precision Comparison.jpg",
   precision_comparison_effects,
   dpi = 300,
   width = 10,
@@ -1389,7 +1389,7 @@ correlation_comparison_effects <- plot_model(
 
 
 ggsave(
-  "Figures/Alex Final Figures/Correlation Comparison.jpg",
+  "Correlation Comparison.jpg",
   correlation_comparison_effects,
   dpi = 300,
   width = 10,
@@ -1440,7 +1440,7 @@ variable_importance_plot <-
   )
 
 ggsave(
-  "Figures/Alex Final Figures/Variable Importance Comparison.jpg",
+  "Variable Importance Comparison.jpg",
   variable_importance_plot,
   dpi = 300,
   width = 10,
@@ -1490,7 +1490,7 @@ estimate_plot <-
   )
 
 ggsave(
-  "Figures/Alex Final Figures/Estimate Comparison.jpg",
+  "Estimate Comparison.jpg",
   estimate_plot,
   dpi = 300,
   width = 10,
@@ -1546,7 +1546,7 @@ accuracy_tree <- rpart(
 
 # Plot the decision tree for interpretation
 
-png(file = "Figures/Alex Final Figures/Accuracy Tree.png",
+png(file = "Accuracy Tree.png",
     width = 1000,
     height = 1000)
 rpart.plot(
@@ -1559,7 +1559,7 @@ rpart.plot(
 dev.off()
 
 # Print the tree model's summary
-png(file = "Figures/Alex Final Figures/Accuracy VIP.png",
+png(file = "Accuracy VIP.png",
     width = 500,
     height = 500)
 vip(
@@ -1626,7 +1626,7 @@ correlation_tree <- rpart(
 
 # Plot the decision tree for interpretation
 
-png(file = "Figures/Alex Final Figures/Correlation Tree.png",
+png(file = "Correlation Tree.png",
     width = 1000,
     height = 1000)
 rpart.plot(
@@ -1640,7 +1640,7 @@ dev.off()
 
 # Print the tree model's summary
 
-png(file = "Figures/Alex Final Figures/Correlation VIP.png",
+png(file = "Correlation VIP.png",
     width = 500,
     height = 500)
 vip(
@@ -1923,7 +1923,7 @@ p_correlation_large <-
 
 
 ggsave(
-  "Figures/Alex Final Figures/Case 1 Accuracies.jpg",
+  "Case 1 Accuracies.jpg",
   p_accuracies_large,
   dpi = 300,
   width = 10,
@@ -1931,7 +1931,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 1 Precisions.jpg",
+  "Case 1 Precisions.jpg",
   p_precisions_large,
   dpi = 300,
   width = 10,
@@ -1939,7 +1939,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 1 Correlation.jpg",
+  "Case 1 Correlation.jpg",
   p_correlation_large,
   dpi = 300,
   width = 10,
@@ -1947,7 +1947,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 1 All.jpg",
+  "Case 1 All.jpg",
   ggarrange(p_accuracies_large + 
               ggtitle('A: Accuracy'), 
             p_precisions_large + 
@@ -2193,7 +2193,7 @@ p_correlation_group_size <-
   )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 2 Accuracies.jpg",
+  "Case 2 Accuracies.jpg",
   p_accuracies_group_size,
   dpi = 300,
   width = 10,
@@ -2201,7 +2201,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 2 Precisions.jpg",
+  "Case 2 Precisions.jpg",
   p_precisions_group_size,
   dpi = 300,
   width = 10,
@@ -2209,7 +2209,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 2 Correlation.jpg",
+  "Case 2 Correlation.jpg",
   p_correlation_group_size,
   dpi = 300,
   width = 10,
@@ -2217,7 +2217,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 2 All.jpg",
+  "Case 2 All.jpg",
   ggarrange(p_accuracies_group_size + 
               ggtitle('A: Accuracy'),
             p_precisions_group_size + 
@@ -2548,7 +2548,7 @@ p_correlation_duration_grooming <-
 
 
 ggsave(
-  "Figures/Alex Final Figures/Case 3 Accuracies Aggression.jpg",
+  "Case 3 Accuracies Aggression.jpg",
   p_accuracies_duration_aggression,
   dpi = 300,
   width = 10,
@@ -2556,7 +2556,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 3 Precisions Aggression.jpg",
+  "Case 3 Precisions Aggression.jpg",
   p_precisions_duration_aggression,
   dpi = 300,
   width = 10,
@@ -2564,7 +2564,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 3 Accuracies Grooming.jpg",
+  "Case 3 Accuracies Grooming.jpg",
   p_accuracies_duration_grooming,
   dpi = 300,
   width = 10,
@@ -2572,7 +2572,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 3 Precisions Grooming.jpg",
+  "Case 3 Precisions Grooming.jpg",
   p_precisions_duration_grooming,
   dpi = 300,
   width = 10,
@@ -2580,7 +2580,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 3 Correlation Aggression.jpg",
+  "Case 3 Correlation Aggression.jpg",
   p_correlation_duration_aggression,
   dpi = 300,
   width = 10,
@@ -2588,7 +2588,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 3 Correlation Grooming.jpg",
+  "Case 3 Correlation Grooming.jpg",
   p_correlation_duration_grooming,
   dpi = 300,
   width = 10,
@@ -2596,7 +2596,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 3 All Aggression.jpg",
+  "Case 3 All Aggression.jpg",
   ggarrange(p_accuracies_duration_aggression + 
               ggtitle('A: Accuracy'), 
             p_precisions_duration_aggression + 
@@ -2609,7 +2609,7 @@ ggsave(
 )
 
 ggsave(
-  "Figures/Alex Final Figures/Case 3 All Grooming.jpg",
+  "Case 3 All Grooming.jpg",
   ggarrange(p_accuracies_duration_grooming + 
               ggtitle('A: Accuracy'), 
             p_accuracies_duration_grooming + 

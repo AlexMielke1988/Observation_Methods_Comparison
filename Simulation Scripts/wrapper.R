@@ -83,9 +83,7 @@ for(j in 1:1000000){
   precision_focal_prop <-
     precision_perID(simulation_runs = simulation_iteration,
                     observed_data = 'focal_prop_perID')
-  precision_focal_rate <-
-    precision_perID(simulation_runs = simulation_iteration,
-                    observed_data = 'focal_rate_perID')
+  
   precision_scan_prop <-
     precision_perID(simulation_runs = simulation_iteration,
                     observed_data = 'scan_prop_perID')
@@ -96,12 +94,7 @@ for(j in 1:1000000){
       true_data = 'true_prop_behav_perID',
       observed_data = 'focal_prop_perID'
     )
-  accuracy_focal_rate <-
-    accuracy_perID(
-      simulation_runs = simulation_iteration,
-      true_data = 'true_rate_behav_perID',
-      observed_data = 'focal_rate_perID'
-    )
+  
   accuracy_scan_prop <-
     accuracy_perID(
       simulation_runs = simulation_iteration,
@@ -113,12 +106,10 @@ for(j in 1:1000000){
   
   precision_frame <- data.frame(
     CV = c(precision_focal_prop,
-           precision_focal_rate,
            precision_scan_prop),
     observed_data = c(
       # whether focal continuous or group time sampling
       rep('focal continuous sampling proportion', length(precision_focal_prop)),
-      rep('focal continuous sampling rate', length(precision_focal_rate)),
       rep('group time sampling proportion', length(precision_scan_prop))
     )
   )
@@ -130,12 +121,10 @@ for(j in 1:1000000){
   accuracy_frame <- data.frame(
     mean_squared_error = c(# mean squared errors
       accuracy_focal_prop,
-      accuracy_focal_rate,
       accuracy_scan_prop),
     observed_data = c(
       # focal continuous or group time sampling
       rep('focal continuous sampling proportion', length(accuracy_focal_prop)),
-      rep('focal continuous sampling rate', length(accuracy_focal_rate)),
       rep('group time sampling proportion', length(accuracy_scan_prop))
     )
   )
