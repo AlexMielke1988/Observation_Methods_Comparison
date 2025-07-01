@@ -8,62 +8,34 @@ set.seed(12345)
 # 
 # decide on a bunch of reasonable values for each parameter we are testing
 simulation_parameters <-
-  expand.grid(
-    n_days = c(30, 90, 180, 360),
+  list(
+    n_days = seq(30, 180, by = 5),
     # number of observation days to simulate (assume 7h per day, see below)
-    group_size = c(20, 50, 100),
-    p_terrain_visibility = c(0.2, 0.8),
-    p_behavior_visibility = c(0.2, 0.8),
-    mean_events = c(1, 7, 20, 50),
+    group_size = seq(10, 100, by = 5),
+    p_terrain_visibility = seq(0.1, 1, by = 0.1),
+    p_behavior_visibility = seq(0.1, 1, by = 0.1),
+    mean_events = c(seq(1, 19, by = 1),
+                    seq(20, 50, by = 5)),
     # mean number of behavioral events per day, per individual (sd set as mean/3, see below)
-    behavior_duration = c(3, 30, 120),
+    behavior_duration = c(seq(1, 9, by = 1),
+                          seq(10, 55, by = 5),
+                          seq(60, 110, by = 10),
+                          seq(120, 600, by = 60)),
     # behavior duration in sec
-    focal_duration_min = c(15, 60),
+    focal_duration_min = c(seq(5, 25, by = 5),
+                           seq(30, 60, by = 10)),
     # time of focal observation in minutes
     focal_break_time_min = 5,
     # minimum break time between focals in minutes
-    scan_obsTime_perID = c(1, 5),
-    # scan time needed per individual in minutes
-    scan_break_time_min = c(60, 300, 900)
+    scan_obsTime_perID = seq(1, 11, by = 2),
+    # scan time needed per individual in seconds
+    scan_break_time_min = c(seq(5, 25, by = 5),
+                          seq(30, 60, by = 10))
   ) # minimum break time between end of scan and start of new one in seconds
-# 
-# simulation_parameters <-
-#   list(
-#     n_days = seq(30, 180, by = 5),
-#     # number of observation days to simulate (assume 7h per day, see below)
-#     group_size = seq(10, 100, by = 5),
-#     p_terrain_visibility = seq(0.1, 1, by = 0.1),
-#     p_behavior_visibility = seq(0.1, 1, by = 0.1),
-#     mean_events = c(seq(1, 19, by = 1), 
-#                     seq(20, 50, by = 5)),
-#     # mean number of behavioral events per day, per individual (sd set as mean/3, see below)
-#     behavior_duration = c(seq(1, 9, by = 1), 
-#                           seq(10, 55, by = 5), 
-#                           seq(60, 110, by = 10), 
-#                           seq(120, 600, by = 60)),
-#     # behavior duration in sec
-#     focal_duration_min = c(seq(5, 25, by = 5),
-#                            seq(30, 60, by = 10)),
-#     # time of focal observation in minutes
-#     focal_break_time_min = 5,
-#     # minimum break time between focals in minutes
-#     scan_obsTime_perID = seq(1, 11, by = 2),
-#     # scan time needed per individual in seconds
-#     scan_break_time_min = c(seq(5, 25, by = 5),
-#                           seq(30, 60, by = 10))
-#   ) # minimum break time between end of scan and start of new one in seconds
 
 
 
-plan(multisession, workers = 10, gc = TRUE)
-# 
-# unused_parameters <- which(!(
-#   sapply(1:nrow(simulation_parameters), 
-#          function(x){
-#            paste(c(paste(simulation_parameters[x, ], collapse = '_'),'.RData'), collapse = '')}) %in% 
-#     list.files('~/GitHub/rethinking-obs-methods/runs/')))
-
-# run simulations (can be parallelised)
+plan(multisession, workers = 1, gc = TRUE)
 
 for(j in 1:1000000){
   
@@ -195,148 +167,3 @@ for(j in 1:1000000){
   # return the whole thing
 }
 future:::ClusterRegistry("stop")
-
-
-############################################
-### EXTRACT RESULTS FROM SIMULATION RUNS ###
-############################################
-
-#CT July 5th 2024: Now moved to a separate script: extract_results.R 
-
-# setwd("~/Documents/GitHub/rethinking-obs-methods/")
-# file_list <-
-#   list.files(path = 'runs/',
-#              pattern = "\\.RData$",
-#              full.names = T)
-# 
-# simulations <- list()
-# 
-# # Loop through each file in the list
-# file = file_list[1]
-# 
-# for (file in file_list) {
-#   
-#   # Load the .RData file into the current R session
-#   load(file)
-#   
-#   # add true and observed values for plotting
-#   # get summary of true values and observed
-#   # 
-#   # raw_summary <- data.frame(
-#   #   true_proportion = colMeans(do.call(rbind, lapply(results$simulation_iteration, function(x) x$true_prop_results))),
-#   #   focal_proportion = colMeans(do.call(rbind, lapply(results$simulation_iteration, function(x) x$focal_prop_results))),
-#   #   scan_proportion = colMeans(do.call(rbind, lapply(results$simulation_iteration, function(x) x$scan_prop_results)))
-#   # )
-#   # 
-#   # results$raw_summary <- dplyr::as_tibble(raw_summary)
-#   # 
-#   simulation_iteration <- results$simulation_iteration
-#   # calculate precision and accuracy for scans and focal follows (functions specified in simulation_functions.R)
-# 
-#   sim_values <- unlist(results$parameters)
-#   
-#   accuracy_focal_prop <-
-#     accuracy_perID(
-#       simulation_runs = simulation_iteration,
-#       true_data = 'true_prop_behav_perID',
-#       observed_data = 'focal_prop_perID'
-#     )
-#   accuracy_focal_rate <-
-#     accuracy_perID(
-#       simulation_runs = simulation_iteration,
-#       true_data = 'true_rate_behav_perID',
-#       observed_data = 'focal_rate_perID'
-#     )
-#   accuracy_scan_prop <-
-#     accuracy_perID(
-#       simulation_runs = simulation_iteration,
-#       true_data = 'true_prop_behav_perID',
-#       observed_data = 'scan_prop_perID'
-#     )
-#   bias_focal_prop <-
-#     bias_perID(
-#       simulation_runs = simulation_iteration,
-#       true_data = 'true_prop_behav_perID',
-#       observed_data = 'focal_prop_perID'
-#     )
-#   bias_scan_prop <-
-#     bias_perID(
-#       simulation_runs = simulation_iteration,
-#       true_data = 'true_prop_behav_perID',
-#       observed_data = 'scan_prop_perID'
-#     )
-#   
-#   # put all the accuracies together with the parameter information for subsequent plotting
-#   accuracy_frame <- data.frame(
-#     mean_squared_error = c(# mean squared errors
-#       accuracy_focal_prop,
-#       accuracy_focal_rate,
-#       accuracy_scan_prop
-#       ),
-#     observed_data = c(
-#       # focal continuous or group time sampling
-#       rep('focal continuous sampling proportion', length(accuracy_focal_prop)),
-#       rep('focal continuous sampling rate', length(accuracy_focal_rate)),
-#       rep('group time sampling proportion', length(accuracy_scan_prop))
-#     )
-#   )
-#   # add the simulation parameters to every row
-#   accuracy_frame <- cbind(accuracy_frame,
-#                           data.frame(sim_values)[rep(seq_len(nrow(data.frame(sim_values))), 
-#                                                      each = nrow(accuracy_frame)),])
-#   
-#   
-#   results$accuracy_frame <- accuracy_frame
-#   
-#   # save as smaller object
-#   results$accuracy_frame = dplyr::as_tibble(results$accuracy_frame[,setdiff(colnames(results$accuracy_frame), 
-#                                                            colnames(results$parameters))])
-#   results$precision_frame = dplyr::as_tibble(results$precision_frame[,setdiff(colnames(results$precision_frame), 
-#                                                              colnames(results$parameters))])
-#   results$cor_frame = dplyr::as_tibble(results$cor_frame[,setdiff(colnames(results$cor_frame), 
-#                                                  colnames(results$parameters))])
-#   # Save the 'results' object to the list
-#   simulations[[file]] <- results[-1]
-#   gc()
-# }
-# 
-# # extract precision for each iteration
-# all_precision <-
-#   do.call(rbind,
-#           lapply(simulations, function(x)
-#             x$precision_frame))
-# 
-# # and plot
-# precision_plot <- ggplot(
-#   all_precision %>% filter(observed_data != 'focal continuous sampling rate')
-#   ,
-#   aes(
-#     x = mean_events,
-#     y = CV,
-#     color = observed_data,
-#     fill = observed_data
-#   )
-# ) +
-#   geom_smooth(method = 'lm') +
-#   theme_classic() +
-#   ggtitle('Precision as Coefficient of Variance')
-# 
-# # extract accuracy for each iteration
-# all_accuracy <-
-#   do.call(rbind,
-#           lapply(simulations, function(x)
-#             x$accuracy_frame))
-# 
-# # and plot
-# accuracy_plot <- ggplot(
-#   accuracies %>% filter(observed_data != 'focal continuous sampling rate'),
-#   aes(
-#     x = mean_events,
-#     y = mean_squared_error,
-#     color = observed_data,
-#     fill = observed_data
-#   )
-# ) +
-#   geom_jitter(alpha = 0.1) +
-#   theme_classic() + ylim(0,2)+ facet_wrap(~observed_data)+
-#   ggtitle('Accuracy as Mean Squared Error from True Value')
