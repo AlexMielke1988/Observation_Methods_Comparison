@@ -27,265 +27,30 @@ library(loo)
 library(ggpubr)
 library(scales)
 library(effectsize)
+setwd('GitHub/ReviewBurner/Observation_Methods_Comparisons/')
 source("Simulation Scripts/simulation_functions.r")
 # Load data ---------------------------------------------------------------
 
-files <- list.files(pattern = "SimulationsOutput")
+## The different aspects of the simulations (accuracy, precision, correlation, bias) 
+## are stored in different objects, as are the parameters underlying each simulation.
+## We call them all up and then attach the simulation parameter values
+load("~/all_accuracy.RData")
+load("~/all_precision.RData")
+load("~/all_correlation.RData")
+load("~/all_bias.RData")
+load("~/all_parameters.RData")
 
-# for each of the files, load the data, take only the accuracy data frame, remove the rest of the data, and bind all the accuracy frames
+all_accuracy <- all_accuracy %>% 
+  left_join(all_parameters, by = 'Run_ID')
 
-accuracy_data <- c()
-precision_data <- c()
+all_precision <- all_precision %>% 
+  left_join(all_parameters, by = 'Run_ID')
 
-# set up parallel processing
-plan(multisession, workers = 16, gc = TRUE)
-options(future.globals.maxSize = 1000 * 1024 ^ 2)
+all_bias <- all_bias %>% 
+  left_join(all_parameters, by = 'Run_ID')
 
-
-
-## Accuracy ----------------------------------------------------------------
-
-
-accuracy_data <- future_map(files, function(x) {
-  load(x)
-  print(x)
-  
-  accuracy_simu <- lapply(seq_along(simulations), function(i) {
-    accuracy_frame <- simulations[[i]]$accuracy_frame %>%
-      filter(
-        observed_data %in% c(
-          'focal continuous sampling proportion',
-          'group time sampling proportion'
-        )
-      ) %>%
-      mutate(
-        simulation = i,
-        file = x,
-        individual = rep(1:unique(group_size), 2)
-      ) %>%
-      unite(Run_ID,
-            file,
-            simulation,
-            sep = '_',
-            remove = FALSE) %>%
-      unite(Individual_ID,
-            file,
-            simulation,
-            individual,
-            sep = '_',
-            remove = FALSE)
-    
-    return(accuracy_frame)
-  }) %>%
-    bind_rows()
-  
-  rm(simulations)
-  gc()
-  return(accuracy_simu)
-})
-
-
-# combine all accuracy values
-accuracy_data <- bind_rows(accuracy_data)
-
-# select one mean value per run, put focal and group time sampling in separate columns
-all_accuracy <- accuracy_data %>%
-  pivot_wider(
-    id_cols = Individual_ID,
-    names_from = observed_data,
-    values_from = accuracy_output,
-    names_prefix = "Accuracy_"
-  ) %>%
-  right_join(accuracy_data %>%
-               select(-observed_data, -accuracy_output) %>%
-               distinct()) %>%
-  # rename Accuracy_ columns to just say 'focal' and 'scan'
-  rename(Accuracy_focal = 'Accuracy_focal continuous sampling proportion', Accuracy_scan = 'Accuracy_group time sampling proportion') %>%
-  mutate(Accuracy_difference = Accuracy_focal - Accuracy_scan) %>%
-  mutate(Accuracy_ratio = Accuracy_focal / Accuracy_scan) %>%
-  mutate(Focal_better = ifelse(Accuracy_focal < Accuracy_scan, 1, 0))
-
-save(all_accuracy, file = "all_accuracy.RData")
-
-
-## Precision ---------------------------------------------------------------
-
-precision_data <- future_map(files, function(x) {
-  load(x)
-  print(x)
-  
-  precision_simu <- lapply(seq_along(simulations), function(i) {
-    precision_frame <- simulations[[i]]$precision_frame %>%
-      filter(
-        observed_data %in% c(
-          'focal continuous sampling proportion',
-          'group time sampling proportion'
-        )
-      ) %>%
-      mutate(
-        simulation = i,
-        file = x,
-        individual = rep(1:unique(group_size), 2)
-      ) %>%
-      unite(Run_ID,
-            file,
-            simulation,
-            sep = '_',
-            remove = FALSE) %>%
-      unite(Individual_ID,
-            file,
-            simulation,
-            individual,
-            sep = '_',
-            remove = FALSE)
-    
-    return(precision_frame)
-  }) %>%
-    bind_rows()
-  
-  rm(simulations)
-  gc()
-  return(precision_simu)
-})
-
-# combine all precision values
-precision_data <- bind_rows(precision_data)
-
-# select one mean value per run, put focal and group time sampling in separate columns
-
-all_precision <- precision_data %>%
-  pivot_wider(
-    id_cols = Individual_ID,
-    names_from = observed_data,
-    values_from = precision_output,
-    names_prefix = "Precision_"
-  ) %>%
-  right_join(precision_data %>%
-               select(-observed_data, -precision_output) %>%
-               distinct()) %>%
-  # rename Precision_ columns to just say 'focal' and 'scan'
-  rename(Precision_focal = 'Precision_focal continuous sampling proportion', Precision_scan = 'Precision_group time sampling proportion') %>%
-  mutate(Precision_difference = Precision_focal - Precision_scan) %>%
-  mutate(Precision_ratio = Precision_focal / Precision_scan) %>%
-  mutate(Focal_better = ifelse(Precision_focal < Precision_scan, 1, 0))
-
-
-save(all_precision, file = "all_precision.RData")
-
-
-## Bias --------------------------------------------------------------------
-
-# Bias data
-
-bias_data <- future_map(files, function(x) {
-  load(x)
-  print(x)
-  
-  bias_simu <- lapply(seq_along(simulations), function(i) {
-    bias_frame <- simulations[[i]]$bias_frame %>%
-      filter(
-        observed_data %in% c(
-          'focal continuous sampling proportion',
-          'group time sampling proportion'
-        )
-      ) %>%
-      mutate(
-        simulation = i,
-        file = x,
-        individual = rep(1:unique(group_size), 2)
-      ) %>%
-      unite(Run_ID,
-            file,
-            simulation,
-            sep = '_',
-            remove = FALSE) %>%
-      unite(Individual_ID,
-            file,
-            simulation,
-            individual,
-            sep = '_',
-            remove = FALSE)
-    
-    return(bias_frame)
-  }) %>%
-    bind_rows()
-  
-  rm(simulations)
-  gc()
-  return(bias_simu)
-})
-
-bias_data <- bind_rows(bias_data)
-
-# select one mean value per run, put focal and group time sampling in separate columns
-
-all_bias <- bias_data %>%
-  pivot_wider(
-    id_cols = Individual_ID,
-    names_from = observed_data,
-    values_from = bias_output,
-    names_prefix = "Bias_"
-  ) %>%
-  right_join(bias_data %>%
-               select(-observed_data, -bias_output) %>%
-               distinct()) %>%
-  # rename Bias_ columns to just say 'focal' and 'scan'
-  rename(Bias_focal = 'Bias_focal continuous sampling proportion', Bias_scan = 'Bias_group time sampling proportion') %>%
-  mutate(Bias_difference = Bias_focal - Bias_scan) %>%
-  mutate(Bias_ratio = Bias_focal / Bias_scan) %>%
-  mutate(Focal_better = ifelse(Bias_focal < Bias_scan, 1, 0))
-
-save(all_bias, file = "all_bias.RData")
-
-
-## Correlation ---------------------------------------------------------------
-
-correlation_data <- future_map(files, function(x) {
-  load(x)
-  print(x)
-  
-  correlation_simu <- lapply(seq_along(simulations), function(i) {
-    correlation_frame <- simulations[[i]]$cor_frame %>%
-      mutate(
-        simulation = i,
-        file = x,
-        iteration = row_number()
-      ) %>%
-      unite(Run_ID,
-            file,
-            simulation,
-            sep = '_',
-            remove = FALSE) %>%
-      unite(Individual_ID,
-            file,
-            simulation,
-            iteration,
-            sep = '_',
-            remove = FALSE)
-    
-    return(correlation_frame)
-  }) %>%
-    bind_rows()
-  
-  rm(simulations)
-  gc()
-  return(correlation_simu)
-})
-
-correlation_data <- bind_rows(correlation_data)
-
-# select one mean value per run, put focal and group time sampling in separate columns
-
-all_correlation <- correlation_data %>%
-  # remove all cases with NAs
-  filter(!is.na(cor_true_focal) & !is.na(cor_true_scan) & !is.na(cor_scan_focal)) %>%
-  # rename Correlation_ columns to just say 'focal' and 'scan'
-  rename(Correlation_focal = 'cor_true_focal', Correlation_scan = 'cor_true_scan', Correlation_approaches = 'cor_scan_focal') %>%
-  mutate(Correlation_difference = Correlation_focal - Correlation_scan) %>%
-  mutate(Focal_better = ifelse(Correlation_focal > Correlation_scan, 1, 0))
-
-save(all_correlation, file = "all_correlation.RData")
-
+all_correlation <- all_correlation %>% 
+  left_join(all_parameters, by = 'Run_ID')
 
 
 # Plot densities of each approach -----------------------------------------
