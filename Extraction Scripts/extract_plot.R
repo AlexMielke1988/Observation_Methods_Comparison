@@ -1,44 +1,31 @@
+# Script to extract the accuracy, precision, bias and correlation of behavioral estimates 
+# from simulated focal follows and group scans to true values & generate plots 
 
-
-
-# Libraries ---------------------------------------------------------------
-
-# Suppress summarise info
-options(dplyr.summarise.inform = FALSE)
-
-# # load packages
-
+# set up workspace -------------------------------------------------------------
 library(tidyverse)
-library(purrr)
 library(future)
 library(furrr)
 library(lme4)
-library(ggplot2)
-library(sjPlot)
-library(gridExtra)
 library(rpart)
 library(rpart.plot)
 library(vip)
 library(scales)
 library(caret)
 library(ggridges)
-library(brms)
-library(loo)
 library(ggpubr)
-library(scales)
-library(effectsize)
-setwd('GitHub/ReviewBurner/Observation_Methods_Comparisons/')
-source("Simulation Scripts/simulation_functions.r")
-# Load data ---------------------------------------------------------------
+library(patchwork)
+options(dplyr.summarise.inform = FALSE) # suppress summarise info
 
-## The different aspects of the simulations (accuracy, precision, correlation, bias) 
+source("Simulation Scripts/simulation_functions.r")
+
+## The different performance measures of the simulations (accuracy, precision, correlation, bias) 
 ## are stored in different objects, as are the parameters underlying each simulation.
 ## We call them all up and then attach the simulation parameter values
-load("~/all_accuracy.RData")
-load("~/all_precision.RData")
-load("~/all_correlation.RData")
-load("~/all_bias.RData")
-load("~/all_parameters.RData")
+load("Simulation Outputs/all_accuracy.RData")
+load("Simulation Outputs/all_precision.RData")
+load("Simulation Outputs/all_correlation.RData")
+load("Simulation Outputs/all_bias.RData")
+load("Simulation Outputs/all_parameters.RData")
 
 all_accuracy <- all_accuracy %>% 
   left_join(all_parameters, by = 'Run_ID')
@@ -52,8 +39,19 @@ all_bias <- all_bias %>%
 all_correlation <- all_correlation %>% 
   left_join(all_parameters, by = 'Run_ID')
 
+# Plot densities of each performance measure ----------------------------------------
 
-# Plot densities of each approach -----------------------------------------
+# Function to get density range and create 5 evenly spaced breaks
+get_density_range <- function(data, value_col, category_col) {
+  dens_data <- data %>%
+    pivot_longer(cols = all_of(c(value_col, category_col)), 
+                 names_to = "Category", 
+                 values_to = "Value") %>%
+    group_by(Category) %>%
+    summarize(max_density = max(density(Value)$y))
+  
+  return(seq(0, max(dens_data$max_density) * 1.1, length.out = 5))
+}
 
 # Accuracy
 
