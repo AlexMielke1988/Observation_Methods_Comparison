@@ -1,0 +1,13 @@
+name: SIMBO
+title: SIMBO
+username: delphinedemoor
+account: delphinedemoor
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 15048278
+bundleId: 10583356
+url: https://delphinedemoor.shinyapps.io/SIMBO/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: filtering_Shiny_simus.R|Shiny_simus_group1.RData|Shiny_simus_group2.RData|Shiny_simus_group3.RData|Shiny_simus_group4.RData|wrapper_for_Shiny.R
