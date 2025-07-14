@@ -5,7 +5,7 @@ account: delphinedemoor
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 15048278
-bundleId: 10583356
+bundleId: 10614797
 url: https://delphinedemoor.shinyapps.io/SIMBO/
 version: 1
 asMultiple: FALSE

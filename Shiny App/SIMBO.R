@@ -76,8 +76,8 @@ ui <- fluidPage(
                              tags$br(), tags$i("Low RMSE values indicate higher accuracy.")),
                      tags$li(tags$b("Precision"), " (middle plot): How consistent the recorded behavior is across repeated observations. Estimated as the mean coefficient of variation (CV) across simulation iterations.",
                              tags$br(), tags$i("Low CV values indicate higher precision.")),
-                     tags$li(tags$b("Correlation to true value"), " (right plot): How strongly the recorded behavior is linearly related to the true behavior. Estimated as the Pearson correlation coefficient between between the estimated and true values.",
-                             tags$br(), tags$i("High correlation values indicate higher correlation."))))),
+                     tags$li(tags$b("Correlation to true value"), " (right plot): How strongly the recorded behavior is linearly related to the true behavior. Estimated as the Pearson correlation coefficient between the estimated and true values.",
+                             tags$br(), tags$i("Higher values indicate higher correlation."))))),
   
   hr(),
   
@@ -91,9 +91,9 @@ ui <- fluidPage(
                              choices = c(0.2, 0.5, 0.8), selected = 0.8)),
            wellPanel(
              h5("Behaviour of interest"),
-             sliderTextInput(inputId = "p_behavior_visibility", label = "Visibility of behaviour", 
+             sliderTextInput(inputId = "p_behavior_visibility", label = "Proportion of occurences of the behaviour that are visible", 
                              choices = c(0.2, 0.5, 0.8), selected = 0.5), 
-             sliderTextInput(inputId = "mean_events", label = "Average number of occurrences of the behaviour per individual per day", 
+             sliderTextInput(inputId = "mean_events", label = "Average number of occurrences of the behaviour per individual per 7-hour day", 
                              choices = c(1, 7, 20, 50), selected = 20),
              sliderTextInput(inputId = "behavior_duration", label = "Average duration of the behaviour (in seconds)", 
                              choices = c(3, 30, 120, 600), selected = 3))),
@@ -213,8 +213,6 @@ server <- function(input, output, session) {
   correlation_plot <- reactive({
     data <- filtered_data()
     
-    print(data)
-    
     cor_run <- data$cor_frame %>%
       select(cor_true_focal, cor_true_scan) %>%
       pivot_longer(everything(), names_to = "method", values_to = "value") %>%
@@ -227,6 +225,10 @@ server <- function(input, output, session) {
       geom_jitter(size = 3, color = "#FBF9F550", width = 0.2) +
       labs(x = NULL, y = "Correlation estimated to true proportions") +
       scale_y_continuous(limits = c(0, 1)) +
+      annotate("text", x = 0.5, y = 0.7, 
+               label = "More correlated →", angle = 90, hjust = 0, vjust = 0.3, size = 4.5, color = "white") +
+      annotate("text", x = 0.5, y = 0.3, 
+               label = "← Less correlated", angle = 90, hjust = 1, vjust = 0.3, size = 4.5, color = "white") +
       common_theme})
   
   # render plots
