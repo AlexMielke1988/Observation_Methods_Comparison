@@ -1,5 +1,5 @@
-# Script to extract the accuracy, precision, bias and correlation of behavioral estimates 
-# from simulated focal follows and group scans to true values & generate plots 
+# Script to extract the accuracy, precision, bias and correlation of behavioral estimates
+# from simulated focal follows and group scans to true values & generate plots
 
 # set up workspace -------------------------------------------------------------
 library(tidyverse)
@@ -16,27 +16,37 @@ library(ggpubr)
 library(patchwork)
 options(dplyr.summarise.inform = FALSE) # suppress summarise info
 
+setwd('GitHub/Observation_Methods_Comparison/')
 source("Simulation Scripts/simulation_functions.r")
 
-## The different performance measures of the simulations (accuracy, precision, correlation, bias) 
+## The different performance measures of the simulations (accuracy, precision, correlation, bias)
 ## are stored in different objects, as are the parameters underlying each simulation.
 ## We call them all up and then attach the simulation parameter values
-load("Simulation Outputs/all_accuracy.RData")
-load("Simulation Outputs/all_precision.RData")
+load("Simulation Outputs/all_accuracy1.RData")
+load("Simulation Outputs/all_accuracy2.RData")
+all_accuracy <- rbind(all_accuracy1, all_accuracy2)
+
+load("Simulation Outputs/all_precision1.RData")
+load("Simulation Outputs/all_precision2.RData")
+all_precision <- rbind(all_precision1, all_precision2)
+
+load("Simulation Outputs/all_bias1.RData")
+load("Simulation Outputs/all_bias2.RData")
+all_bias <- rbind(all_bias1, all_bias2)
+
 load("Simulation Outputs/all_correlation.RData")
-load("Simulation Outputs/all_bias.RData")
 load("Simulation Outputs/all_parameters.RData")
 
-all_accuracy <- all_accuracy %>% 
+all_accuracy <- all_accuracy %>%
   left_join(all_parameters, by = 'Run_ID')
 
-all_precision <- all_precision %>% 
+all_precision <- all_precision %>%
   left_join(all_parameters, by = 'Run_ID')
 
-all_bias <- all_bias %>% 
+all_bias <- all_bias %>%
   left_join(all_parameters, by = 'Run_ID')
 
-all_correlation <- all_correlation %>% 
+all_correlation <- all_correlation %>%
   left_join(all_parameters, by = 'Run_ID')
 
 # Plot densities of each performance measure ----------------------------------------
@@ -44,19 +54,19 @@ all_correlation <- all_correlation %>%
 # Function to get density range and create 5 evenly spaced breaks
 get_density_range <- function(data, value_col, category_col) {
   dens_data <- data %>%
-    pivot_longer(cols = all_of(c(value_col, category_col)), 
-                 names_to = "Category", 
+    pivot_longer(cols = all_of(c(value_col, category_col)),
+                 names_to = "Category",
                  values_to = "Value") %>%
     group_by(Category) %>%
     summarize(max_density = max(density(Value)$y))
-  
+
   return(seq(0, max(dens_data$max_density) * 1.1, length.out = 5))
 }
 
 # Accuracy
 
 accuracy_density <- all_accuracy %>%
-  filter(scan_break_time_min <= 60) %>% 
+  filter(scan_break_time_min <= 60) %>%
   select(Accuracy_focal, Accuracy_scan) %>%
   pivot_longer(cols = everything(),
                names_to = "Category",
@@ -79,8 +89,8 @@ accuracy_density <- all_accuracy %>%
     linetype = "dashed",
     size = 1
   ) +
-  labs(title = "A: Accuracy", 
-       x = "RMSE", 
+  labs(title = "A: Accuracy",
+       x = "RMSE",
        y = "Frequency") +
   theme_minimal() +
   # scale x-axis as log
@@ -100,7 +110,7 @@ accuracy_density <- all_accuracy %>%
     ),
     labels = c("Focal Follows", "Group Scans")
   ) +
-  scale_x_continuous(labels = label_comma(), 
+  scale_x_continuous(labels = label_comma(),
                      transform = 'log10') +
   theme(axis.text.y=element_blank(),  #remove y axis labels
         axis.ticks.y=element_blank()  #remove y axis ticks
@@ -110,7 +120,7 @@ accuracy_density <- all_accuracy %>%
 # Precision
 
 precision_density <- all_precision %>%
-  filter(scan_break_time_min <= 60) %>% 
+  filter(scan_break_time_min <= 60) %>%
   filter(Precision_focal != 0 & Precision_scan != 0) %>%
   filter(!is.na(Precision_focal) & !is.na(Precision_scan)) %>%
   select(Precision_focal, Precision_scan) %>%
@@ -157,7 +167,7 @@ precision_density <- all_precision %>%
     ),
     labels = c("Focal Follows", "Group Scans")
   ) +
-  scale_x_continuous(labels = label_comma(), 
+  scale_x_continuous(labels = label_comma(),
                      transform = 'log10')+
   theme(axis.text.y=element_blank(),  #remove y axis labels
         axis.ticks.y=element_blank()  #remove y axis ticks
@@ -166,7 +176,7 @@ precision_density <- all_precision %>%
 # Bias
 
 bias_density <- all_bias %>%
-  filter(scan_break_time_min <= 60) %>% 
+  filter(scan_break_time_min <= 60) %>%
   select(Bias_focal, Bias_scan) %>%
   pivot_longer(cols = everything(),
                names_to = "Category",
@@ -195,12 +205,12 @@ bias_density <- all_bias %>%
   #add legend for fills
   theme(legend.position = "right") +
   scale_fill_manual(
-    values = c("Bias_focal" = "#5DA8E4", 
+    values = c("Bias_focal" = "#5DA8E4",
                "Bias_scan" = "#EF9401"),
     labels = c("Focal Follows", "Group Scans")
   ) +
   scale_color_manual(
-    values = c("Bias_focal" = "#5DA8E4", 
+    values = c("Bias_focal" = "#5DA8E4",
                "Bias_scan" = "#EF9401"),
     labels = c("Focal Follows", "Group Scans")
   )+
@@ -212,7 +222,7 @@ bias_density <- all_bias %>%
 # Correlation
 
 correlation_density <- all_correlation %>%
-  filter(scan_break_time_min <= 60) %>% 
+  filter(scan_break_time_min <= 60) %>%
   select(Correlation_focal, Correlation_scan) %>%
   pivot_longer(cols = everything(),
                names_to = "Category",
@@ -240,12 +250,12 @@ correlation_density <- all_correlation %>%
   #add legend for fills
   theme(legend.position = "right") +
   scale_fill_manual(
-    values = c("Correlation_focal" = "#5DA8E4", 
+    values = c("Correlation_focal" = "#5DA8E4",
                "Correlation_scan" = "#EF9401"),
     labels = c("Focal Follows", "Group Scans")
   ) +
   scale_color_manual(
-    values = c("Correlation_focal" = "#5DA8E4", 
+    values = c("Correlation_focal" = "#5DA8E4",
                "Correlation_scan" = "#EF9401"),
     labels = c("Focal Follows", "Group Scans")
   )+
@@ -278,13 +288,13 @@ correlation_difference <- all_correlation %>%
 # Save plots
 
 p_density_plot <- ggarrange(
-  accuracy_density, 
+  accuracy_density,
   precision_density,
   bias_density,
-  correlation_density, 
-  ncol = 2, 
+  correlation_density,
+  ncol = 2,
   nrow = 2,
-  legend = 'bottom', 
+  legend = 'bottom',
   common.legend = T
 )
 
@@ -409,31 +419,31 @@ performance_colors <- c(
 
 accuracy_plot <-
   rbind(
-    standardize_parameters(mdl_accuracy_scan) %>% 
-      data.frame() %>% 
+    standardize_parameters(mdl_accuracy_scan) %>%
+      data.frame() %>%
       mutate(performance = 'Group Scan'),
-    standardize_parameters(mdl_accuracy_focal) %>% 
-      data.frame() %>% 
-      mutate(performance = 'Focal Follows')) %>% 
-  filter(Parameter != '(Intercept)') %>% 
-  ggplot(aes(y = Parameter, 
-             x = Std_Coefficient, 
-             color = performance, 
-             fill = performance)) + 
-  geom_errorbarh(aes(xmin = 0, 
-                     xmax = Std_Coefficient), 
+    standardize_parameters(mdl_accuracy_focal) %>%
+      data.frame() %>%
+      mutate(performance = 'Focal Follows')) %>%
+  filter(Parameter != '(Intercept)') %>%
+  ggplot(aes(y = Parameter,
+             x = Std_Coefficient,
+             color = performance,
+             fill = performance)) +
+  geom_errorbarh(aes(xmin = 0,
+                     xmax = Std_Coefficient),
                  height = 0,
                  linewidth = 1,
                  position = position_dodge(width = .7)) +
   geom_point(size = 3,
-             position = position_dodge(width = .7)) + 
+             position = position_dodge(width = .7)) +
   geom_text(aes(label = round(Std_Coefficient, 2)),  # Add labels
             position = position_dodge(width = 0.7),  # Align with points
             vjust = -0.6,
             color = 'black',
-            size = 3) +    
+            size = 3) +
   geom_vline(aes(xintercept = 0), lty = 2) +
-  theme_minimal() + 
+  theme_minimal() +
   ggtitle('Accuracy - Parameter Impact') +
   scale_color_manual(values = performance_colors) +  # Set custom colors for points
   scale_fill_manual(values = performance_colors) +   # Set custom colors for fills (if applicable) +
@@ -452,7 +462,7 @@ ggsave(
   width = 10,
   height = 10
 )
-  
+
 ## Precision ---------------------------------------------------------------
 
 # Precision - Focal
@@ -558,31 +568,31 @@ performance_colors <- c(
 
 precision_plot <-
   rbind(
-    standardize_parameters(mdl_precision_scan) %>% 
-      data.frame() %>% 
+    standardize_parameters(mdl_precision_scan) %>%
+      data.frame() %>%
       mutate(performance = 'Group Scan'),
-    standardize_parameters(mdl_precision_focal) %>% 
-      data.frame() %>% 
-      mutate(performance = 'Focal Follows')) %>% 
-  filter(Parameter != '(Intercept)') %>% 
-  ggplot(aes(y = Parameter, 
-             x = Std_Coefficient, 
-             color = performance, 
-             fill = performance)) + 
-  geom_errorbarh(aes(xmin = 0, 
-                     xmax = Std_Coefficient), 
+    standardize_parameters(mdl_precision_focal) %>%
+      data.frame() %>%
+      mutate(performance = 'Focal Follows')) %>%
+  filter(Parameter != '(Intercept)') %>%
+  ggplot(aes(y = Parameter,
+             x = Std_Coefficient,
+             color = performance,
+             fill = performance)) +
+  geom_errorbarh(aes(xmin = 0,
+                     xmax = Std_Coefficient),
                  height = 0,
                  linewidth = 1,
                  position = position_dodge(width = .7)) +
   geom_point(size = 3,
-             position = position_dodge(width = .7)) + 
+             position = position_dodge(width = .7)) +
   geom_text(aes(label = round(Std_Coefficient, 2)),  # Add labels
             position = position_dodge(width = 0.7),  # Align with points
             vjust = -0.6,
             color = 'black',
-            size = 3) +    
+            size = 3) +
   geom_vline(aes(xintercept = 0), lty = 2) +
-  theme_minimal() + 
+  theme_minimal() +
   ggtitle('Precision - Parameter Impact') +
   scale_color_manual(values = performance_colors) +  # Set custom colors for points
   scale_fill_manual(values = performance_colors) +   # Set custom colors for fills (if applicable) +
@@ -706,31 +716,31 @@ performance_colors <- c(
 
 bias_plot <-
   rbind(
-    standardize_parameters(mdl_bias_scan) %>% 
-      data.frame() %>% 
+    standardize_parameters(mdl_bias_scan) %>%
+      data.frame() %>%
       mutate(performance = 'Group Scan'),
-    standardize_parameters(mdl_bias_focal) %>% 
-      data.frame() %>% 
-      mutate(performance = 'Focal Follows')) %>% 
-  filter(Parameter != '(Intercept)') %>% 
-  ggplot(aes(y = Parameter, 
-             x = Std_Coefficient, 
-             color = performance, 
-             fill = performance)) + 
-  geom_errorbarh(aes(xmin = 0, 
-                     xmax = Std_Coefficient), 
+    standardize_parameters(mdl_bias_focal) %>%
+      data.frame() %>%
+      mutate(performance = 'Focal Follows')) %>%
+  filter(Parameter != '(Intercept)') %>%
+  ggplot(aes(y = Parameter,
+             x = Std_Coefficient,
+             color = performance,
+             fill = performance)) +
+  geom_errorbarh(aes(xmin = 0,
+                     xmax = Std_Coefficient),
                  height = 0,
                  linewidth = 1,
                  position = position_dodge(width = .7)) +
   geom_point(size = 3,
-             position = position_dodge(width = .7)) + 
+             position = position_dodge(width = .7)) +
   geom_text(aes(label = round(Std_Coefficient, 2)),  # Add labels
             position = position_dodge(width = 0.7),  # Align with points
             vjust = -0.6,
             color = 'black',
-            size = 3) +    
+            size = 3) +
   geom_vline(aes(xintercept = 0), lty = 2) +
-  theme_minimal() + 
+  theme_minimal() +
   ggtitle('Bias - Parameter Impact') +
   scale_color_manual(values = performance_colors) +  # Set custom colors for points
   scale_fill_manual(values = performance_colors) +   # Set custom colors for fills (if applicable) +
@@ -848,31 +858,31 @@ performance_colors <- c(
 
 correlation_plot <-
   rbind(
-    standardize_parameters(mdl_correlation_scan) %>% 
-      data.frame() %>% 
+    standardize_parameters(mdl_correlation_scan) %>%
+      data.frame() %>%
       mutate(performance = 'Group Scan'),
-    standardize_parameters(mdl_correlation_focal) %>% 
-      data.frame() %>% 
-      mutate(performance = 'Focal Follows')) %>% 
-  filter(Parameter != '(Intercept)') %>% 
-  ggplot(aes(y = Parameter, 
-             x = Std_Coefficient, 
-             color = performance, 
-             fill = performance)) + 
-  geom_errorbarh(aes(xmin = 0, 
-                     xmax = Std_Coefficient), 
+    standardize_parameters(mdl_correlation_focal) %>%
+      data.frame() %>%
+      mutate(performance = 'Focal Follows')) %>%
+  filter(Parameter != '(Intercept)') %>%
+  ggplot(aes(y = Parameter,
+             x = Std_Coefficient,
+             color = performance,
+             fill = performance)) +
+  geom_errorbarh(aes(xmin = 0,
+                     xmax = Std_Coefficient),
                  height = 0,
                  linewidth = 1,
                  position = position_dodge(width = .7)) +
   geom_point(size = 3,
-             position = position_dodge(width = .7)) + 
+             position = position_dodge(width = .7)) +
   geom_text(aes(label = round(Std_Coefficient, 2)),  # Add labels
             position = position_dodge(width = 0.7),  # Align with points
             vjust = -0.6,
             color = 'black',
-            size = 3) +    
+            size = 3) +
   geom_vline(aes(xintercept = 0), lty = 2) +
-  theme_minimal() + 
+  theme_minimal() +
   ggtitle('Correlation - Parameter Impact') +
   scale_color_manual(values = performance_colors) +  # Set custom colors for points
   scale_fill_manual(values = performance_colors) +   # Set custom colors for fills (if applicable) +
@@ -932,15 +942,15 @@ z_data_accuracy_comparison <-  all_accuracy %>%
       "scan_break_time_min"
     ),
     ~ (scale(.) %>% as.vector)
-  ) %>% 
-  mutate(Focal_benefit = Accuracy_focal - Accuracy_scan) %>% 
+  ) %>%
+  mutate(Focal_benefit = Accuracy_focal - Accuracy_scan) %>%
   mutate(Focal_ratio = Accuracy_focal/Accuracy_scan)
 
 
 
 # Fit a GLM with student t (heavy-tailed approximation)
 # Full model formula
-full_formula <- Focal_benefit ~ 
+full_formula <- Focal_benefit ~
   n_days +
   group_size +
   p_terrain_visibility +
@@ -991,7 +1001,7 @@ ggsave(
 
 ### prepare data for analysis
 z_data_precision_comparison <-  all_precision %>%
-  filter(!is.infinite(Precision_focal) & !is.infinite(Precision_scan)) %>% 
+  filter(!is.infinite(Precision_focal) & !is.infinite(Precision_scan)) %>%
   group_by(Run_ID) %>%
   summarise(
     Precision_focal = median(Precision_focal),
@@ -1022,15 +1032,15 @@ z_data_precision_comparison <-  all_precision %>%
       "scan_break_time_min"
     ),
     ~ (scale(.) %>% as.vector)
-  ) %>% 
-  mutate(Focal_benefit = Precision_focal - Precision_scan) %>% 
+  ) %>%
+  mutate(Focal_benefit = Precision_focal - Precision_scan) %>%
   mutate(Focal_ratio = Precision_focal/Precision_scan)
 
 
 
 # Fit a GLM with student t (heavy-tailed approximation)
 # Full model formula
-full_formula <- Focal_benefit ~ 
+full_formula <- Focal_benefit ~
   n_days +
   group_size +
   p_terrain_visibility +
@@ -1108,13 +1118,13 @@ z_data_correlation_comparison <-  all_correlation %>%
       "scan_break_time_min"
     ),
     ~ (scale(.) %>% as.vector)
-  ) %>% 
+  ) %>%
   mutate(Focal_benefit = Correlation_focal - Correlation_scan)
 
 
 # Fit a GLM with student t (heavy-tailed approximation)
 # Full model formula
-full_formula <- Focal_benefit ~ 
+full_formula <- Focal_benefit ~
   n_days +
   group_size +
   p_terrain_visibility +
@@ -1170,29 +1180,29 @@ performance_colors <- c(
 
 variable_importance_plot <-
   rbind(
-    variable_importance_accuracy %>% 
+    variable_importance_accuracy %>%
       mutate(performance = 'Accuracy'),
-    variable_importance_precision %>% 
+    variable_importance_precision %>%
       mutate(performance = 'Precision'),
-    variable_importance_correlation %>% 
-      mutate(performance = 'Correlation')) %>% 
-  ggplot(aes(y = Variable, 
-             x = Importance, 
-             color = performance, 
-             fill = performance)) + 
-  geom_errorbarh(aes(xmin=0, 
-                   xmax=Importance), 
+    variable_importance_correlation %>%
+      mutate(performance = 'Correlation')) %>%
+  ggplot(aes(y = Variable,
+             x = Importance,
+             color = performance,
+             fill = performance)) +
+  geom_errorbarh(aes(xmin=0,
+                   xmax=Importance),
                  height = 0,
                  linewidth = 1,
                 position = position_dodge(width = .7)) +
   geom_point(size = 3,
-             position = position_dodge(width = .7)) + 
+             position = position_dodge(width = .7)) +
   geom_text(aes(label = round(Importance, 0)),  # Add labels
             position = position_dodge(width = 0.7),  # Align with points
             vjust = -0.6,
             color = 'black',
-            size = 3) +   
-  theme_minimal() + 
+            size = 3) +
+  theme_minimal() +
   scale_color_manual(values = performance_colors) +  # Set custom colors for points
   scale_fill_manual(values = performance_colors) +   # Set custom colors for fills (if applicable) +
   labs(
@@ -1214,35 +1224,35 @@ ggsave(
 
 estimate_plot <-
   rbind(
-    standardize_parameters(mdl_accuracy_full) %>% 
-      data.frame() %>% 
+    standardize_parameters(mdl_accuracy_full) %>%
+      data.frame() %>%
       mutate(performance = 'Accuracy'),
-    standardize_parameters(mdl_precision_full) %>% 
-      data.frame() %>% 
+    standardize_parameters(mdl_precision_full) %>%
+      data.frame() %>%
       mutate(performance = 'Precision'),
-    standardize_parameters(mdl_correlation_full) %>% 
-      data.frame() %>% 
-      mutate(Std_Coefficient = Std_Coefficient * (-1)) %>% 
-      mutate(performance = 'Correlation')) %>% 
-  filter(Parameter != '(Intercept)') %>% 
-  ggplot(aes(y = Parameter, 
-             x = Std_Coefficient, 
-             color = performance, 
-             fill = performance)) + 
-  geom_errorbarh(aes(xmin=0, 
-                     xmax=Std_Coefficient), 
+    standardize_parameters(mdl_correlation_full) %>%
+      data.frame() %>%
+      mutate(Std_Coefficient = Std_Coefficient * (-1)) %>%
+      mutate(performance = 'Correlation')) %>%
+  filter(Parameter != '(Intercept)') %>%
+  ggplot(aes(y = Parameter,
+             x = Std_Coefficient,
+             color = performance,
+             fill = performance)) +
+  geom_errorbarh(aes(xmin=0,
+                     xmax=Std_Coefficient),
                  height = 0,
                  linewidth = 1,
                  position = position_dodge(width = .7)) +
   geom_point(size = 3,
-             position = position_dodge(width = .7)) + 
+             position = position_dodge(width = .7)) +
   geom_text(aes(label = round(Std_Coefficient, 2)),  # Add labels
             position = position_dodge(width = 0.7),  # Align with points
             vjust = -0.6,
             color = 'black',
-            size = 3) +    
+            size = 3) +
   geom_vline(aes(xintercept = 0), lty = 2) +
-  theme_minimal() + 
+  theme_minimal() +
   scale_color_manual(values = performance_colors) +  # Set custom colors for points
   scale_fill_manual(values = performance_colors) +   # Set custom colors for fills (if applicable) +
   labs(
@@ -1481,7 +1491,7 @@ precision_and_accuracy <- function(simulation_iteration) {
     precision_perID(simulation_runs = simulation_iteration, observed_data = 'focal_prop_perID')
   precision_scan_prop <-
     precision_perID(simulation_runs = simulation_iteration, observed_data = 'scan_prop_perID')
-  
+
   accuracy_focal_prop <-
     accuracy_perID(
       simulation_runs = simulation_iteration,
@@ -1494,9 +1504,9 @@ precision_and_accuracy <- function(simulation_iteration) {
       true_data = 'true_prop_behav_perID',
       observed_data = 'scan_prop_perID'
     )
-  
+
   # put all the precisions together with the parameter information for subsequent plotting
-  
+
   precision_frame <- data.frame(
     CV = c(precision_focal_prop, precision_scan_prop),
     observed_data = c(
@@ -1513,7 +1523,7 @@ precision_and_accuracy <- function(simulation_iteration) {
   )
   # add the simulation parameters to every row
   precision_frame <- cbind(precision_frame, data.frame(simulation_iteration[[1]][1:13][-7]))
-  
+
   # put all the accuracies together with the parameter information for subsequent plotting
   accuracy_frame <- data.frame(
     mean_squared_error = c(# mean squared errors
@@ -1529,16 +1539,16 @@ precision_and_accuracy <- function(simulation_iteration) {
   )
   # add the simulation parameters to every row
   accuracy_frame <- cbind(accuracy_frame, data.frame(simulation_iteration[[1]][1:13][-7]))
-  
-  cor_frame <- 
+
+  cor_frame <-
     data.frame(cor_true_scan = sapply(simulation_iteration, function(x) cor(x$scan_prop_results, x$true_prop_behav_perID)),
                cor_true_focal = sapply(simulation_iteration, function(x) cor(x$focal_prop_results, x$true_prop_behav_perID)),
                cor_scan_focal = sapply(simulation_iteration, function(x) cor(x$focal_prop_results, x$scan_prop_results)))
-  
+
   cor_frame <- cbind(cor_frame,
                      data.frame(simulation_iteration[[1]][1:13][-7]))
-  
-  
+
+
   return(list(accuracy_frame = accuracy_frame, precision_frame = precision_frame, cor_frame = cor_frame))
 }
 
@@ -1600,10 +1610,10 @@ corr <- rbind(
   pa_grooming$cor_frame,
   pa_aggression$cor_frame,
   pa_threat$cor_frame
-) %>% pivot_longer(cols = 
-                     c(cor_true_scan, cor_true_focal), 
-                   names_to = 'observed_data', 
-                   values_to = 'correlation') %>% 
+) %>% pivot_longer(cols =
+                     c(cor_true_scan, cor_true_focal),
+                   names_to = 'observed_data',
+                   values_to = 'correlation') %>%
   # rename values in 'observed_data' column to fit the other datasets
   mutate(observed_data = if_else(observed_data == 'cor_true_scan', 'group time sampling proportion', 'focal continuous sampling proportion'))
 
@@ -1711,11 +1721,11 @@ ggsave(
 
 ggsave(
   "Case 1 All.jpg",
-  ggarrange(p_accuracies_large + 
-              ggtitle('A: Accuracy'), 
-            p_precisions_large + 
-              ggtitle('B: Precision'), 
-            p_correlation_large + 
+  ggarrange(p_accuracies_large +
+              ggtitle('A: Accuracy'),
+            p_precisions_large +
+              ggtitle('B: Precision'),
+            p_correlation_large +
               ggtitle('C: Correlation'), ncol=1, nrow=3, common.legend = TRUE, legend="bottom"),
   dpi = 300,
   width = 6,
@@ -1871,10 +1881,10 @@ corrs <- rbind(
   pa_small_frequent$cor_frame
   # pa_small_medium$cor_frame,
   # pa_small_rare$cor_frame
-) %>% pivot_longer(cols = 
-                     c(cor_true_scan, cor_true_focal), 
-                   names_to = 'observed_data', 
-                   values_to = 'correlation') %>% 
+) %>% pivot_longer(cols =
+                     c(cor_true_scan, cor_true_focal),
+                   names_to = 'observed_data',
+                   values_to = 'correlation') %>%
   # rename values in 'observed_data' column to fit the other datasets
   mutate(observed_data = if_else(observed_data == 'cor_true_scan', 'group time sampling proportion', 'focal continuous sampling proportion'))
 
@@ -1981,11 +1991,11 @@ ggsave(
 
 ggsave(
   "Case 2 All.jpg",
-  ggarrange(p_accuracies_group_size + 
+  ggarrange(p_accuracies_group_size +
               ggtitle('A: Accuracy'),
-            p_precisions_group_size + 
+            p_precisions_group_size +
               ggtitle('B: Precision'),
-            p_correlation_group_size + 
+            p_correlation_group_size +
               ggtitle('C: Correlation'), ncol=1, nrow=3, common.legend = TRUE, legend="bottom"),
   dpi = 300,
   width = 6,
@@ -2133,13 +2143,13 @@ corr_aggression <- rbind(
   pa_aggression_90$cor_frame,
   pa_aggression_180$cor_frame,
   pa_aggression_730$cor_frame
-) %>% pivot_longer(cols = 
-                     c(cor_true_scan, cor_true_focal), 
-                   names_to = 'observed_data', 
-                   values_to = 'correlation') %>% 
+) %>% pivot_longer(cols =
+                     c(cor_true_scan, cor_true_focal),
+                   names_to = 'observed_data',
+                   values_to = 'correlation') %>%
   # rename values in 'observed_data' column to fit the other datasets
-  mutate(observed_data = if_else(observed_data == 'cor_true_scan', 
-                                 'group time sampling proportion', 
+  mutate(observed_data = if_else(observed_data == 'cor_true_scan',
+                                 'group time sampling proportion',
                                  'focal continuous sampling proportion'))
 
 corr_grooming <- rbind(
@@ -2147,13 +2157,13 @@ corr_grooming <- rbind(
   pa_grooming_90$cor_frame,
   pa_grooming_180$cor_frame,
   pa_grooming_730$cor_frame
-) %>% pivot_longer(cols = 
-                     c(cor_true_scan, cor_true_focal), 
-                   names_to = 'observed_data', 
-                   values_to = 'correlation') %>% 
+) %>% pivot_longer(cols =
+                     c(cor_true_scan, cor_true_focal),
+                   names_to = 'observed_data',
+                   values_to = 'correlation') %>%
   # rename values in 'observed_data' column to fit the other datasets
-  mutate(observed_data = if_else(observed_data == 'cor_true_scan', 
-                                 'group time sampling proportion', 
+  mutate(observed_data = if_else(observed_data == 'cor_true_scan',
+                                 'group time sampling proportion',
                                  'focal continuous sampling proportion'))
 
 p_accuracies_duration_aggression <-
@@ -2360,11 +2370,11 @@ ggsave(
 
 ggsave(
   "Case 3 All Aggression.jpg",
-  ggarrange(p_accuracies_duration_aggression + 
-              ggtitle('A: Accuracy'), 
-            p_precisions_duration_aggression + 
-              ggtitle('B: Precision'), 
-            p_correlation_duration_aggression + 
+  ggarrange(p_accuracies_duration_aggression +
+              ggtitle('A: Accuracy'),
+            p_precisions_duration_aggression +
+              ggtitle('B: Precision'),
+            p_correlation_duration_aggression +
               ggtitle('C: Correlation'), ncol=1, nrow=3, common.legend = TRUE, legend="bottom"),
   dpi = 300,
   width = 6,
@@ -2373,11 +2383,11 @@ ggsave(
 
 ggsave(
   "Case 3 All Grooming.jpg",
-  ggarrange(p_accuracies_duration_grooming + 
-              ggtitle('A: Accuracy'), 
-            p_accuracies_duration_grooming + 
+  ggarrange(p_accuracies_duration_grooming +
+              ggtitle('A: Accuracy'),
+            p_accuracies_duration_grooming +
               ggtitle('B: Precision'),
-            p_correlation_duration_grooming + 
+            p_correlation_duration_grooming +
               ggtitle('C: Correlation'), ncol=1, nrow=3, common.legend = TRUE, legend="bottom"),
   dpi = 300,
   width = 6,
