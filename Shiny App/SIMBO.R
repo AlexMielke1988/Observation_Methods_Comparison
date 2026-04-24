@@ -7,12 +7,12 @@ library(tidyverse)
 library(purrr)
 library(bslib)
 library(thematic)
-library(qs)
+library(qs2)
 
 # SET UP
 
 # load in filtered simulation outputs
-sim <- qread("Shiny_simulations_filtered.qs")
+sim <- qs_read("Shiny_simulations_filtered.qs")
 
 # set custom theme for app
 custom_theme <- bs_theme(bg = "#1A242F", fg = "#FBF9F5", primary = "#D4DADC", secondary = "#F4F8F9",
@@ -39,12 +39,12 @@ get_run_id <- function(input) {
         sep = '_')}
 
 # check distributuions of MSRE and CV across all simulations to decide on limits for plots
-all_MSREs <- map_dbl(sim, ~ mean(.x$accuracy_frame$mean_squared_error))
+all_MSREs <- map_dbl(sim, ~ mean(.x$accuracy_frame$accuracy_output))
 plot(density(all_MSREs))
 MSRE_lower_limit = 1
 MSRE_upper_limit = 500
 
-all_CVs <- map_dbl(sim, ~ mean(.x$precision_frame$CV))
+all_CVs <- map_dbl(sim, ~ mean(.x$precision_frame$precision_output))
 plot(density(all_CVs))
 CV_lower_limit = 1
 CV_upper_limit = 250
@@ -156,9 +156,7 @@ server <- function(input, output, session) {
       validate(need(FALSE, "No data available for this parameter set."))
       return(NULL)}
     
-    data <- sim[run] %>%
-      transpose() %>% 
-      map(bind_rows)
+    data <- sim[[run]]
     
     data})
   
@@ -166,10 +164,10 @@ server <- function(input, output, session) {
   accuracy_plot <- reactive({
     data <- filtered_data()
     MSE_run <- data$accuracy_frame %>%
-      select(mean_squared_error, observed_data) %>%
+      select(accuracy_output, observed_data) %>%
       filter(observed_data != "focal continuous sampling rate") # filter out rates
     
-    ggplot(MSE_run, aes(observed_data, mean_squared_error)) +
+    ggplot(MSE_run, aes(observed_data, accuracy_output)) +
       geom_violin(color = "#FBF9F550", fill = "#FBF9F505") +
       geom_jitter(size = 3, color = "#FBF9F550", width = 0.2) +
       xlab("") + ylab("MSE from true proportion") +
@@ -189,10 +187,10 @@ server <- function(input, output, session) {
   precision_plot <- reactive({
     data <- filtered_data()
     CV_run <- data$precision_frame %>%
-      select(CV, observed_data) %>%
+      select(precision_output, observed_data) %>%
       filter(observed_data != "focal continuous sampling rate") # filter out rates
     
-    ggplot(CV_run, aes(observed_data, CV)) +
+    ggplot(CV_run, aes(observed_data, precision_output)) +
       geom_violin(color = "#FBF9F550", fill = "#FBF9F505") +
       geom_jitter(size = 3, color = "#FBF9F550", width = 0.2) +
       xlab("") + labs(y = "CV in estimated proportions") +
